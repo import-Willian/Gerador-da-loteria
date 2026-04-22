@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>Gerador da Loteria</title>
+
+<!-- PWA -->
+<link rel="manifest" href="manifest.json">
+<meta name="theme-color" content="#6a0d25">
+
+<!-- iPhone -->
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Loteria">
+<link rel="apple-touch-icon" href="icon-192.png">
+
+<style>
+body {
+  margin: 0;
+  font-family: -apple-system, sans-serif;
+  background: linear-gradient(to bottom, #6a0d25, #000);
+  color: white;
+  text-align: center;
+}
+
+.app {
+  max-width: 420px;
+  margin: auto;
+  padding: 20px;
+}
+
+.opcao {
+  padding: 15px;
+  margin: 10px 0;
+  border-radius: 10px;
+  background: rgba(255,255,255,0.1);
+  cursor: pointer;
+}
+
+.active {
+  border: 2px solid gold;
+}
+
+button {
+  width: 100%;
+  padding: 15px;
+  border-radius: 10px;
+  border: none;
+  font-size: 18px;
+  margin-top: 10px;
+}
+
+.resultado {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 10px;
+  margin-top: 20px;
+}
+
+.bolinha {
+  width: 50px;
+  height: 50px;
+  border-radius: 50%;
+  background: white;
+  color: black;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+</style>
+</head>
+
+<body>
+
+<div class="app">
+  <h2>💰 Gerador</h2>
+
+  <div class="opcao" onclick="selecionar('mega', this)">Mega</div>
+  <div class="opcao" onclick="selecionar('loto', this)">Lotofácil</div>
+  <div class="opcao" onclick="selecionar('milionaria', this)">+Milionária</div>
+
+  <button onclick="gerar()">GERAR</button>
+
+  <div id="resultado" class="resultado"></div>
+</div>
+
+<script>
+let jogo = null;
+
+function selecionar(tipo, el) {
+  jogo = tipo;
+  document.querySelectorAll(".opcao").forEach(o => o.classList.remove("active"));
+  el.classList.add("active");
+}
+
+function gerarNumeros(qtd, max) {
+  const set = new Set();
+  while (set.size < qtd) {
+    set.add(Math.floor(Math.random() * max) + 1);
+  }
+  return [...set].sort((a,b)=>a-b);
+}
+
+function gerar() {
+  if (!jogo) return alert("Escolha um jogo");
+
+  const container = document.getElementById("resultado");
+  container.innerHTML = "";
+
+  let numeros = jogo === "mega" ? gerarNumeros(6,60)
+               : jogo === "loto" ? gerarNumeros(15,25)
+               : gerarNumeros(6,50);
+
+  numeros.forEach(n => {
+    const d = document.createElement("div");
+    d.className = "bolinha";
+    d.innerText = n;
+    container.appendChild(d);
+  });
+}
+
+// registrar service worker
+if ("serviceWorker" in navigator) {
+  navigator.serviceWorker.register("service-worker.js");
+}
+</script>
+
+</body>
+</html>
